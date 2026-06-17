@@ -50,8 +50,8 @@ The application follows a standard layered architecture for separation of concer
 
 Interactive API documentation is available through Swagger UI when the application is running.
 
--   **Swagger UI**: `http://localhost:8080/swagger-ui.html`
--   **OpenAPI Spec**: `http://localhost:8080/v3/api-docs`
+-   **Swagger UI**: `https://jewellerssagar-app-backend.onrender.com/swagger-ui.html`
+-   **OpenAPI Spec**: `https://jewellerssagar-app-backend.onrender.com/v3/api-docs`
 
 ## Configuration
 
