@@ -1,0 +1,30 @@
+# Build artifacts & caches
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+
+# Docs
+HELP.md
+README.md
+
+# Uploads (handled at runtime, not build)
+uploads/

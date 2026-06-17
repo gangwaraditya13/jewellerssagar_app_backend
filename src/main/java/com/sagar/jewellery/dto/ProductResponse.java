@@ -1,0 +1,34 @@
+package com.sagar.jewellery.dto;
+
+import com.sagar.jewellery.model.enums.GoldPurity;
+import com.sagar.jewellery.model.enums.JewelleryCategory;
+import com.sagar.jewellery.model.enums.MetalType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductResponse {
+    private String id;
+    private String name;
+    private String description;
+    private JewelleryCategory category;
+    private MetalType metalType;
+    private GoldPurity purity;
+    private double grossWeight;
+    private double makingChargesPerGram;
+    private int stockQuantity;
+    private String makerId;
+    private String imageUrl;
+    private String model3DId;
+    private double livePrice;
+    private double finalPrice;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}
