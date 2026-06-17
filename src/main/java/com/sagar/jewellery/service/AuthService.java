@@ -10,6 +10,4 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
     AuthResponse refresh(RefreshTokenRequest request);
     void logout(String refreshToken);
-
-    //todo reset password
 }
