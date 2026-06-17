@@ -15,11 +15,6 @@ COPY --from=builder /app/target/sagar-jewellery-0.0.1-SNAPSHOT.jar app.jar
 # Expose port
 EXPOSE 8080
 
-# Environment variables defaults (Render will override)
-ENV PORT=8080
-ENV MONGODB_URI=mongodb://localhost:27017/sagar_jewellery
-ENV JWT_SECRET=9a67a80b1a0d31c0ee107f92023a1a36a8d67c5417ab0836582d9217a6a4c21a
-
 # JVM tuning options for low latency and high concurrency (G1GC, container-aware memory limit, exit on OOM)
 ENTRYPOINT ["java", \
             "-XX:+UseG1GC", \
