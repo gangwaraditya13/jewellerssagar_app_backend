@@ -8,12 +8,15 @@ COPY mvnw .
 RUN chmod +x mvnw
 
 COPY src ./src
+
 RUN ./mvnw -B clean package -DskipTests
 
 # --- Runtime Stage ---
 FROM eclipse-temurin:21-jdk-jammy
+
 WORKDIR /app
-COPY --from=build /build/target/*.jar app.jar
+
+COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8080
 
