@@ -19,11 +19,17 @@ import com.sagar.jewellery.repository.UserRepository;
 import com.sagar.jewellery.security.JwtUtil;
 import com.sagar.jewellery.security.RefreshTokenService;
 import com.sagar.jewellery.service.AuthService;
+import com.sagar.jewellery.dto.ForgotPasswordRequest;
+import com.sagar.jewellery.dto.ResetPasswordRequest;
+import com.sagar.jewellery.model.OtpToken;
+import com.sagar.jewellery.repository.OtpTokenRepository;
+import com.sagar.jewellery.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -45,6 +51,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private RefreshTokenService refreshTokenService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private OtpTokenRepository otpTokenRepository;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -204,5 +216,75 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String refreshToken) {
         refreshTokenService.deleteByToken(refreshToken);
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String email = request.getEmail();
+        
+        // Check if email exists
+        boolean userExists = userRepository.existsByEmail(email) || 
+                             makerRepository.existsByEmail(email) || 
+                             adminRepository.existsByEmail(email);
+        
+        if (!userExists) {
+            throw new ResourceNotFoundException("User not found with email: " + email);
+        }
+
+        // Generate 6 digit OTP
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        // Delete existing OTP for this email if any
+        otpTokenRepository.deleteByEmail(email);
+
+        // Save new OTP (expires in 5 minutes)
+        OtpToken otpToken = OtpToken.builder()
+                .email(email)
+                .otp(otp)
+                .expiryDate(LocalDateTime.now().plusMinutes(5))
+                .build();
+        otpTokenRepository.save(otpToken);
+
+        // Send email
+        emailService.sendOtpEmail(email, otp);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = request.getEmail();
+        String otp = request.getOtp();
+        String newPassword = request.getNewPassword();
+
+        OtpToken otpToken = otpTokenRepository.findByEmailAndOtp(email, otp)
+                .orElseThrow(() -> new UnauthorizedException("Invalid OTP"));
+
+        if (otpToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            otpTokenRepository.delete(otpToken);
+            throw new UnauthorizedException("OTP has expired");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        // Update password for the corresponding user type
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+        } else {
+            JewelleryMaker maker = makerRepository.findByEmail(email).orElse(null);
+            if (maker != null) {
+                maker.setPassword(encodedPassword);
+                makerRepository.save(maker);
+            } else {
+                Admin admin = adminRepository.findByEmail(email).orElse(null);
+                if (admin != null) {
+                    admin.setPassword(encodedPassword);
+                    adminRepository.save(admin);
+                }
+            }
+        }
+
+        // Clean up OTP
+        otpTokenRepository.delete(otpToken);
     }
 }

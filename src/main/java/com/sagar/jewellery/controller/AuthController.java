@@ -1,9 +1,6 @@
 package com.sagar.jewellery.controller;
 
-import com.sagar.jewellery.dto.AuthResponse;
-import com.sagar.jewellery.dto.LoginRequest;
-import com.sagar.jewellery.dto.RefreshTokenRequest;
-import com.sagar.jewellery.dto.RegisterRequest;
+import com.sagar.jewellery.dto.*;
 import com.sagar.jewellery.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +38,17 @@ public class AuthController {
             authService.logout(refreshToken);
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(Map.of("message", "OTP sent to your email successfully"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
 }
